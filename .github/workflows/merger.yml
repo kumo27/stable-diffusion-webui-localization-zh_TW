@@ -29,7 +29,7 @@ jobs:
           python '.github/workflows/merge-localization.py'
 
       - name: upload zh_TW.json
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zh_TW.json
           path: localizations/zh_TW.json
@@ -43,7 +43,7 @@ jobs:
           ref: main
 
       - name: upload README.md
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: README.md
           path: README.md
@@ -66,7 +66,7 @@ jobs:
           rm -f README.md
 
       - name: download README.md
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: README.md
           path: .
@@ -77,7 +77,7 @@ jobs:
         run: python '.github/workflows/crowdin-tool.py'
 
       - name: upload README.md
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: README.md
           path: README.md
@@ -97,13 +97,13 @@ jobs:
           rm -f localizations/zh_TW.json
 
       - name: download README.md
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: README.md
           path: .
 
       - name: download zh_TW.json
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: zh_TW.json
           path: localizations
