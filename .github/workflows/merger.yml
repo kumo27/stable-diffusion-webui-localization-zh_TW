@@ -128,7 +128,7 @@ jobs:
   auto-merge-PR:
     needs: push-changes-to-main
     runs-on: ubuntu-latest
-    if: github.actor == 'harukaxxxx'
+    if: github.actor == 'kumo27'
     steps:
       - name: automerge
         uses: "pascalgn/automerge-action@v0.15.6"
