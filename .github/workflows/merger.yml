@@ -1,0 +1,136 @@
+name: Build translation and update progress
+
+on:
+  pull_request:
+    branches:
+      - translations
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  merge-localization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout to l10n branch
+        uses: actions/checkout@v3
+        with:
+          ref: l10n
+
+      - name: setup python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: "3.10.6"
+
+      - name: run merger.py
+        run: |
+          mkdir -p localizations
+          touch localizations/zh_TW.json
+          python '.github/workflows/merge-localization.py'
+
+      - name: upload zh_TW.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: zh_TW.json
+          path: localizations/zh_TW.json
+
+  update-progress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout to main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: upload README.md
+        uses: actions/upload-artifact@v4
+        with:
+          name: README.md
+          path: README.md
+
+      - name: checkout to translations branch
+        uses: actions/checkout@v3
+        with:
+          ref: translations
+
+      - name: setup python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: "3.10.6"
+
+      - name: install dependencies
+        run: pip install crowdin-api-client
+
+      - name: Remove existing files
+        run: |
+          rm -f README.md
+
+      - name: download README.md
+        uses: actions/download-artifact@v4
+        with:
+          name: README.md
+          path: .
+
+      - name: run crowdin tool.py
+        env:
+          crowdin_api_token: ${{ secrets.CROWDIN_PROGRESS_CHECKER_API_KEY }}
+        run: python '.github/workflows/crowdin-tool.py'
+
+      - name: upload README.md
+        uses: actions/upload-artifact@v4
+        with:
+          name: README.md
+          path: README.md
+
+  push-changes-to-main:
+    needs: [merge-localization, update-progress]
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout to main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Remove existing files
+        run: |
+          rm -f README.md
+          rm -f localizations/zh_TW.json
+
+      - name: download README.md
+        uses: actions/download-artifact@v4
+        with:
+          name: README.md
+          path: .
+
+      - name: download zh_TW.json
+        uses: actions/download-artifact@v4
+        with:
+          name: zh_TW.json
+          path: localizations
+
+      - name: configure git
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: commit changes
+        run: |
+          git add README.md
+          git add localizations/zh_TW.json
+          git diff-index --quiet HEAD || (git commit -m "✨ feat: merge localization and update progress list")
+
+      - name: push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+  auto-merge-PR:
+    needs: push-changes-to-main
+    runs-on: ubuntu-latest
+    if: github.actor == 'harukaxxxx'
+    steps:
+      - name: automerge
+        uses: "pascalgn/automerge-action@v0.15.6"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
