@@ -151,7 +151,7 @@
   "Input directory": "輸入目錄",
   "Output directory": "輸出目錄",
   "Inpaint batch mask directory (required for inpaint batch processing only)": "修補批次遮罩目錄（僅適用於批次處理修補功能）",
-  "PNG info": "PNG info",
+  "PNG info": "圖片資訊",
   "Append png info to prompts": "將提示詞添加到 PNG 資訊內",
   "PNG info directory": "PNG 資訊目錄",
   "Parameters to take from png info": "從 PNG 資訊中提取的參數",
